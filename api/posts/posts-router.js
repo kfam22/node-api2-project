@@ -2,9 +2,26 @@
 const Posts = require('./posts-model');
 const router = require('express').Router();
 
-// router.get('/', (req, res)=>{
-//     Posts.find()
-// })
+router.get('/', (req, res) =>{
+    res.json('getting posts');
+})
+router.get('/:id', (req, res) =>{
+
+})
+router.post('/', (req, res) =>{
+
+})
+router.put('/:id', (req, res) =>{
+
+})
+router.delete('/:id', (req, res) =>{
+
+})
+router.get('/:id/comments', (req, res) =>{
+
+})
+
+
 
 
 
