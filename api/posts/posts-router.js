@@ -80,7 +80,41 @@ router.post('/', (req, res) =>{
 })
 
 router.put('/:id', (req, res) =>{
-
+    const { title, contents } = req.body;
+    // first validate that the correct information is supplied: both title and contents must be provided, if they aren't it's a bad request, user needs to supply both
+    if(!title || !contents){
+        res.status(400).json({ message: "Please provide title and contents for the post"})
+        // after validating information, find the post by id
+    } else {
+        Posts.findById(req.params.id)
+        .then(post =>{
+            // then, validate the id provided: if the id entered is not valid then status code of not found (404) is returned
+            if(!post){
+                res.status(404).json({
+                    message: "The post with the specified ID does not exist"
+                })
+                // if the provided id is valid, update the post with the valid id and valid information supplied from params.id and body from req
+            }else{
+                return Posts.update(req.params.id, req.body)
+            }
+        })
+        .then(info => {
+            if(info){
+                return Posts.findById(req.params.id)
+            }
+        })
+        .then(post =>{
+            if(post){
+                res.json(post);
+            }
+        })
+        .catch(err =>{
+            res.status(500).json({
+                message: "The posts information could not be retrieved",
+                error: err.message
+            })
+        })
+    }
 })
 
 router.delete('/:id', (req, res) =>{
@@ -88,7 +122,6 @@ router.delete('/:id', (req, res) =>{
     console.log(id)
     Posts.findById(id)
     .then(post =>{
-        // console.log('count', count)
         if(post){
             Posts.remove(id)
             .then(()=>{
@@ -103,8 +136,23 @@ router.delete('/:id', (req, res) =>{
     }) 
 })
 
-router.get('/:id/comments', (req, res) =>{
-
+router.get('/:id/comments', async (req, res) =>{
+    try{
+        const post = await Posts.findById(req.params.id)
+        if(!post){
+            res.status(404).json({
+                message: "Thek post with the specified ID does not exist"
+            })
+        } else{
+            const comments = await Posts.findPostComments(req.params.id)
+            res.json(comments)
+        }
+    }catch(err){
+        res.status(500).json({
+            message: "The comments information could not be retreived",
+            error: err.message
+        })
+    }
 })
 
 module.exports = router;
